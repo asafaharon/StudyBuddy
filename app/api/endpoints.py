@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, Request
 from sqlalchemy.orm import Session
+from pydantic import BaseModel  # הוספנו את זה בשביל מודל ההגשה
 import uuid
 import traceback  # ספרייה קריטית לשליפת מקור השגיאה המדויק
 import io
@@ -9,7 +10,15 @@ from app.models import schemas, db_models
 from app.agents.graph import exam_generation_app
 import docx
 from pptx import Presentation
+
 router = APIRouter()
+
+
+# --- מודל נתונים להגשת מבחן (התווסף עבור פיצ'ר הכיתה) ---
+class SubmissionCreate(BaseModel):
+    exam_id: str
+    student_name: str
+    score: int
 
 
 @router.post("/upload")
@@ -101,6 +110,8 @@ async def upload_material(
         print(f"Error Message: {str(e)}")
         db.rollback()
         raise HTTPException(status_code=500, detail=f"שגיאה בהעלאת החומר: {str(e)}")
+
+
 @router.post("/generate-exam", response_model=schemas.Exam)
 async def generate_exam(
         request: schemas.ExamCreateRequest,
@@ -226,3 +237,63 @@ async def get_exam(session_id: str, db: Session = Depends(get_db)):
         print("\n🔥 --- CRITICAL ERROR IN /exam/{session_id} --- 🔥")
         print(f"Error Message: {str(e)}")
         raise HTTPException(status_code=500, detail="שגיאה בשליפת המבחן ממסד הנתונים.")
+
+
+# ==========================================
+# --- אזור פיצ'ר ניהול הכיתה והציונים ---
+# ==========================================
+
+@router.post("/submit-exam")
+async def submit_exam(submission: SubmissionCreate, db: Session = Depends(get_db)):
+    print("\n" + "=" * 40)
+    print(f"--- 🎓 STUDENT SUBMISSION RECEIVED ---")
+    print(f"  -> Student: {submission.student_name}")
+    print(f"  -> Exam ID: {submission.exam_id}")
+    print(f"  -> Score: {submission.score}%")
+
+    try:
+        new_sub = db_models.DBSubmission(
+            exam_id=submission.exam_id,
+            student_name=submission.student_name,
+            score=submission.score
+        )
+        db.add(new_sub)
+        db.commit()
+        print("  -> ✅ Submission saved successfully!")
+        print("=" * 40 + "\n")
+
+        return {"status": "success", "message": "המבחן הוגש בהצלחה!"}
+    except Exception as e:
+        print(f"  -> ❌ ERROR saving submission: {str(e)}")
+        db.rollback()
+        raise HTTPException(status_code=500, detail="שגיאה בשמירת התוצאה.")
+
+
+@router.get("/exam/{session_id}/results")
+async def get_exam_results(session_id: str, db: Session = Depends(get_db)):
+    print("\n" + "=" * 40)
+    print(f"--- 📊 FETCHING RESULTS FOR EXAM: {session_id} ---")
+
+    exam = db.query(db_models.DBExam).filter(db_models.DBExam.id == session_id).first()
+    if not exam:
+        raise HTTPException(status_code=404, detail="המבחן לא נמצא.")
+
+    # שליפת כל ההגשות, מסודרות מהחדש לישן
+    results = db.query(db_models.DBSubmission).filter(db_models.DBSubmission.exam_id == session_id).order_by(
+        db_models.DBSubmission.timestamp.desc()).all()
+
+    submissions_list = []
+    for res in results:
+        submissions_list.append({
+            "student_name": res.student_name,
+            "score": res.score,
+            "timestamp": res.timestamp.strftime("%d/%m/%Y %H:%M")
+        })
+
+    print(f"  -> ✅ Retrieved {len(submissions_list)} submissions.")
+    print("=" * 40 + "\n")
+
+    return {
+        "exam_title": exam.title,
+        "submissions": submissions_list
+    }

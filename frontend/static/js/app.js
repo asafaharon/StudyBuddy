@@ -1,5 +1,7 @@
 let currentExamData = null;
 let userAnswers = {};
+let currentStudentName = ""; // משתנה לשמירת שם התלמיד במבחן כיתה
+let isStudentMode = false;   // דגל לבדיקת סוג הצפייה במבחן
 
 const API_BASE = '/api/v1';
 
@@ -14,21 +16,39 @@ function showView(viewId) {
 // 0. בדיקה בטעינת העמוד: האם הגענו דרך לינק שיתוף?
 document.addEventListener('DOMContentLoaded', async () => {
     const urlParams = new URLSearchParams(window.location.search);
-    const examId = urlParams.get('exam_id');
+    const regularExamId = urlParams.get('exam_id');
+    const studentExamId = urlParams.get('student_exam');
 
-    if (examId) {
+    const activeExamId = regularExamId || studentExamId;
+
+    if (activeExamId) {
         showView('loading-view');
-        document.getElementById('loading-status').innerText = "טוען מבחן משותף מהארכיון...";
+
+        if (studentExamId) {
+            isStudentMode = true;
+            document.getElementById('loading-status').innerText = "מכין מבחן כיתה...";
+        } else {
+            document.getElementById('loading-status').innerText = "טוען מבחן משותף מהארכיון...";
+        }
 
         try {
-            const res = await fetch(`${API_BASE}/exam/${examId}`);
+            const res = await fetch(`${API_BASE}/exam/${activeExamId}`);
             if (!res.ok) throw new Error("המבחן לא נמצא, ייתכן שהלינק פג תוקף.");
 
             currentExamData = await res.json();
-            cleanExamData(currentExamData); // הסרת סוגריים
+            cleanExamData(currentExamData);
             document.getElementById('exam-date').innerText = new Date().toLocaleDateString('he-IL');
 
             renderExam(currentExamData);
+
+            if (isStudentMode) {
+                toggleStudentUI();
+                // הקפצת חלון הרשמת תלמיד
+                document.getElementById('student-modal').classList.remove('hidden');
+            } else {
+                toggleViewerUI(); // מצב צפייה רגיל (ללא סמכויות מורה)
+            }
+
             showView('exam-view');
         } catch (error) {
             alert(error.message);
@@ -38,7 +58,54 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-// פונקציית ניקוי: מסירה את כל סוגי הסוגריים מכל הטקסטים
+// ניהול הרשמת תלמיד לפני התחלת המבחן
+document.getElementById('start-student-exam-btn').addEventListener('click', () => {
+    const nameInput = document.getElementById('student-name-input').value.trim();
+    if (!nameInput) {
+        alert("נא להזין שם מלא כדי להתחיל את המבחן.");
+        return;
+    }
+    currentStudentName = nameInput;
+    document.getElementById('student-modal').classList.add('hidden');
+});
+
+// פונקציות לשליטה על ממשק המשתמש (כפתורים שונים למורה/תלמיד)
+function toggleTeacherUI() {
+    document.getElementById('share-class-btn').classList.remove('hidden');
+    document.getElementById('view-results-btn').classList.remove('hidden');
+    document.getElementById('download-solved-btn').classList.remove('hidden');
+    document.getElementById('share-btn').classList.remove('hidden');
+    document.getElementById('submit-exam').classList.remove('hidden');
+    document.getElementById('toolbar-separator').classList.remove('hidden');
+
+    document.getElementById('submit-student-exam-btn').classList.add('hidden');
+}
+
+function toggleStudentUI() {
+    // הסתרת כלי המורה ושיתוף
+    document.getElementById('share-class-btn').classList.add('hidden');
+    document.getElementById('view-results-btn').classList.add('hidden');
+    document.getElementById('download-solved-btn').classList.add('hidden');
+    document.getElementById('share-btn').classList.add('hidden');
+    document.getElementById('submit-exam').classList.add('hidden');
+    document.getElementById('toolbar-separator').classList.add('hidden');
+
+    // הצגת כפתור הגשה למורה
+    document.getElementById('submit-student-exam-btn').classList.remove('hidden');
+}
+
+function toggleViewerUI() {
+    // צופה רגיל - רואה רק שיתוף, בדיקה עצמית והורדה רגילה
+    document.getElementById('share-class-btn').classList.add('hidden');
+    document.getElementById('view-results-btn').classList.add('hidden');
+    document.getElementById('submit-student-exam-btn').classList.add('hidden');
+
+    document.getElementById('share-btn').classList.remove('hidden');
+    document.getElementById('submit-exam').classList.remove('hidden');
+    document.getElementById('download-solved-btn').classList.remove('hidden');
+}
+
+// פונקציית ניקוי טקסט
 function cleanExamData(exam) {
     const removeBrackets = (text) => {
         if (typeof text !== 'string') return text;
@@ -58,7 +125,7 @@ function cleanExamData(exam) {
     }
 }
 
-// 1. העלאת חומר חדש ויצירת מבחן
+// 1. העלאת חומר חדש ויצירת מבחן (הופך אותך למורה)
 document.getElementById('upload-form').addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -102,6 +169,7 @@ document.getElementById('upload-form').addEventListener('submit', async (e) => {
         document.getElementById('exam-date').innerText = new Date().toLocaleDateString('he-IL');
 
         renderExam(currentExamData);
+        toggleTeacherUI(); // כי אתה יצרת את המבחן
         showView('exam-view');
 
     } catch (error) {
@@ -121,6 +189,10 @@ function renderExam(exam) {
     const submitBtn = document.getElementById('submit-exam');
     submitBtn.classList.remove('hidden', 'opacity-50', 'cursor-not-allowed');
     submitBtn.disabled = false;
+
+    const studentSubmitBtn = document.getElementById('submit-student-exam-btn');
+    studentSubmitBtn.classList.remove('hidden', 'opacity-50', 'cursor-not-allowed');
+    studentSubmitBtn.disabled = false;
 
     exam.questions.forEach((q, index) => {
         const qDiv = document.createElement('div');
@@ -171,8 +243,8 @@ function renderExam(exam) {
     });
 }
 
-// 3. הגשת המבחן
-document.getElementById('submit-exam').addEventListener('click', () => {
+// פונקציית עזר לבדיקה ויזואלית של המבחן על המסך
+function markExamAndGetScore() {
     let score = 0;
     let mcqCount = 0;
 
@@ -207,46 +279,147 @@ document.getElementById('submit-exam').addEventListener('click', () => {
         document.getElementById(`explanation-${q.id}`).classList.remove('hidden');
     });
 
+    return mcqCount > 0 ? Math.round((score / mcqCount) * 100) : 100;
+}
+
+// 3. הגשת המבחן (בדיקה עצמית)
+document.getElementById('submit-exam').addEventListener('click', () => {
+    const gradePercent = markExamAndGetScore();
     document.getElementById('submit-exam').classList.add('hidden');
 
-    if (mcqCount > 0) {
-        const gradePercent = Math.round((score / mcqCount) * 100);
-        const scoreBadge = document.createElement('span');
-        scoreBadge.id = "score-badge";
-        scoreBadge.className = 'inline-block bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-1.5 rounded-full text-xl font-bold mr-4 shadow-md';
-        scoreBadge.innerText = `ציון: ${gradePercent}`;
-        document.getElementById('exam-title').appendChild(scoreBadge);
-    }
+    const scoreBadge = document.createElement('span');
+    scoreBadge.id = "score-badge";
+    scoreBadge.className = 'inline-block bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-1.5 rounded-full text-xl font-bold mr-4 shadow-md';
+    scoreBadge.innerText = `ציון: ${gradePercent}`;
+    document.getElementById('exam-title').appendChild(scoreBadge);
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
-// 4. העתקת לינק שיתוף
-document.getElementById('share-btn').addEventListener('click', async () => {
-    if (!currentExamData || !currentExamData.id) return;
+// 3.5 הגשת מבחן למורה (תלמיד)
+document.getElementById('submit-student-exam-btn').addEventListener('click', async () => {
+    // וידוא שהתלמיד ענה על משהו לפני הגשה (אופציונלי)
+    if(Object.keys(userAnswers).length === 0) {
+        if(!confirm("לא סימנת אף תשובה. האם אתה בטוח שברצונך להגיש?")) return;
+    }
 
-    const shareUrl = `${window.location.origin}${window.location.pathname}?exam_id=${currentExamData.id}`;
+    const btn = document.getElementById('submit-student-exam-btn');
+    btn.innerHTML = `<svg class="w-4 h-4 animate-spin inline-block mr-2" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> מגיש למורה...`;
+    btn.disabled = true;
+
+    const gradePercent = markExamAndGetScore();
 
     try {
-        await navigator.clipboard.writeText(shareUrl);
-        const btn = document.getElementById('share-btn');
-        const originalHtml = btn.innerHTML;
+        const res = await fetch(`${API_BASE}/submit-exam`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                exam_id: currentExamData.id,
+                student_name: currentStudentName,
+                score: gradePercent
+            })
+        });
 
-        btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> <span class="hidden sm:inline">הקישור הועתק!</span>`;
-        btn.classList.replace('bg-blue-600', 'bg-green-500');
-        btn.classList.replace('hover:bg-blue-500', 'hover:bg-green-400');
+        if (!res.ok) throw new Error("שגיאה בהגשת התוצאה לשרת.");
 
-        setTimeout(() => {
-            btn.innerHTML = originalHtml;
-            btn.classList.replace('bg-green-500', 'bg-blue-600');
-            btn.classList.replace('hover:bg-green-400', 'hover:bg-blue-500');
-        }, 3000);
+        btn.classList.add('hidden');
+
+        const scoreBadge = document.createElement('span');
+        scoreBadge.id = "score-badge";
+        scoreBadge.className = 'inline-block bg-gradient-to-r from-emerald-500 to-green-500 text-white px-4 py-1.5 rounded-full text-xl font-bold mr-4 shadow-md';
+        scoreBadge.innerText = `הוגש! ציון: ${gradePercent}`;
+        document.getElementById('exam-title').appendChild(scoreBadge);
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        alert(`כל הכבוד ${currentStudentName}! המבחן הוגש למורה בהצלחה. (ציון: ${gradePercent})`);
 
     } catch (err) {
-        alert(`הנה קישור השיתוף שלך:\n${shareUrl}\n(תעתיק ותשלח למי שתרצה!)`);
+        alert(err.message);
+        btn.innerText = "נסה שוב";
+        btn.disabled = false;
     }
 });
 
-// 5. מערכת יצירת PDF
+// 4. העתקת לינק שיתוף רגיל
+document.getElementById('share-btn').addEventListener('click', async () => {
+    if (!currentExamData || !currentExamData.id) return;
+    const shareUrl = `${window.location.origin}${window.location.pathname}?exam_id=${currentExamData.id}`;
+    copyUrlToClipboard(shareUrl, 'share-btn', 'הקישור הועתק!', 'bg-blue-600', 'hover:bg-blue-500');
+});
+
+// 4.5 העתקת לינק שיתוף לכיתה
+document.getElementById('share-class-btn').addEventListener('click', async () => {
+    if (!currentExamData || !currentExamData.id) return;
+    const shareUrl = `${window.location.origin}${window.location.pathname}?student_exam=${currentExamData.id}`;
+    copyUrlToClipboard(shareUrl, 'share-class-btn', 'קישור לכיתה הועתק!', 'bg-indigo-600', 'hover:bg-indigo-500');
+});
+
+async function copyUrlToClipboard(url, btnId, successText, origBgClass, origHoverClass) {
+    try {
+        await navigator.clipboard.writeText(url);
+        const btn = document.getElementById(btnId);
+        const originalHtml = btn.innerHTML;
+
+        btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> <span class="hidden sm:inline">${successText}</span>`;
+        btn.classList.replace(origBgClass, 'bg-green-500');
+        btn.classList.replace(origHoverClass, 'hover:bg-green-400');
+
+        setTimeout(() => {
+            btn.innerHTML = originalHtml;
+            btn.classList.replace('bg-green-500', origBgClass);
+            btn.classList.replace('hover:bg-green-400', origHoverClass);
+        }, 3000);
+
+    } catch (err) {
+        alert(`הנה הקישור שלך:\n${url}`);
+    }
+}
+
+// 5. צפייה בתוצאות (מורה)
+document.getElementById('view-results-btn').addEventListener('click', async () => {
+    try {
+        const res = await fetch(`${API_BASE}/exam/${currentExamData.id}/results`);
+        if (!res.ok) throw new Error("לא ניתן היה למשוך את התוצאות.");
+        const data = await res.json();
+
+        const tbody = document.getElementById('results-table-body');
+        tbody.innerHTML = '';
+
+        if (data.submissions.length === 0) {
+            document.getElementById('no-results-msg').classList.remove('hidden');
+            document.querySelector('#teacher-results-modal table').classList.add('hidden');
+        } else {
+            document.getElementById('no-results-msg').classList.add('hidden');
+            document.querySelector('#teacher-results-modal table').classList.remove('hidden');
+
+            data.submissions.forEach(sub => {
+                let badgeClass = sub.score >= 80 ? 'bg-emerald-100 text-emerald-700' :
+                                 sub.score >= 60 ? 'bg-amber-100 text-amber-700' :
+                                 'bg-red-100 text-red-700';
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="p-4 font-medium text-slate-800 border-b border-slate-100">${sub.student_name}</td>
+                        <td class="p-4 text-center border-b border-slate-100">
+                            <span class="inline-block px-3 py-1 rounded-full text-sm font-bold ${badgeClass}">${sub.score}%</span>
+                        </td>
+                        <td class="p-4 text-slate-500 text-sm border-b border-slate-100 text-left" dir="ltr">${sub.timestamp}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        document.getElementById('teacher-results-modal').classList.remove('hidden');
+    } catch (err) {
+        alert(err.message);
+    }
+});
+
+document.getElementById('close-results-btn').addEventListener('click', () => {
+    document.getElementById('teacher-results-modal').classList.add('hidden');
+});
+
+// 6. מערכת יצירת PDF
 async function generatePDF(isSolved) {
     if (!currentExamData) return;
 
@@ -334,7 +507,6 @@ async function generatePDF(isSolved) {
     const btn = document.getElementById(btnId);
     const originalText = btn.innerHTML;
 
-    // אנימציית טעינה בזמן ההורדה עם טקסט מעודכן
     btn.innerHTML = `<svg class="w-4 h-4 animate-spin inline-block" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> <span class="hidden sm:inline ml-2">מכין קובץ...</span>`;
     btn.disabled = true;
 
@@ -350,11 +522,14 @@ async function generatePDF(isSolved) {
 document.getElementById('download-blank-btn').addEventListener('click', () => generatePDF(false));
 document.getElementById('download-solved-btn').addEventListener('click', () => generatePDF(true));
 
-// 6. חזרה למסך הראשי
+// 7. חזרה למסך הראשי
 document.getElementById('back-btn').addEventListener('click', () => {
     window.history.replaceState({}, document.title, window.location.pathname);
     document.getElementById('upload-form').reset();
-    currentExamData = null; userAnswers = {};
+    currentExamData = null;
+    userAnswers = {};
+    currentStudentName = "";
+    isStudentMode = false;
     document.getElementById('questions-container').innerHTML = '';
     const badge = document.getElementById('score-badge');
     if(badge) badge.remove();
