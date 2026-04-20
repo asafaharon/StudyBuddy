@@ -14,15 +14,21 @@
         }
         .hidden { display: none !important; }
 
-        /* הגדרות לעמוד המבחן המודפס */
+        /* הגדרות מותאמות למובייל לעמוד המבחן המודפס */
         .a4-page {
+            width: 100%;
             max-width: 21cm;
-            min-height: 29.7cm;
             margin: 0 auto;
             background: white;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0,0,0,0.05);
             border-radius: 8px;
         }
+        @media (min-width: 640px) {
+            .a4-page {
+                min-height: 29.7cm;
+            }
+        }
+
         .avoid-page-break {
             page-break-inside: avoid;
             break-inside: avoid;
@@ -45,27 +51,27 @@
         }
     </style>
 </head>
-<body class="relative min-h-screen flex flex-col items-center py-12 overflow-x-hidden text-slate-800">
+<body class="relative min-h-screen flex flex-col items-center py-6 sm:py-12 overflow-x-hidden text-slate-800">
 
     <div class="glow-effect top-[-100px] right-[-100px]"></div>
     <div class="glow-effect bottom-[10%] left-[-150px]" style="background: radial-gradient(circle, rgba(79,70,229,0.15) 0%, rgba(255,255,255,0) 70%);"></div>
 
-    <header class="mb-10 text-center relative z-10">
+    <header class="mb-6 sm:mb-10 text-center relative z-10 px-4">
         <div class="inline-flex items-center gap-2 mb-2">
-            <span class="bg-purple-100 text-purple-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Beta Release</span>
+            <span class="bg-purple-100 text-purple-700 text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Beta Release</span>
         </div>
-        <h1 class="text-5xl font-extrabold tracking-tight mb-2">
+        <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight mb-2">
             StudyBuddy <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-500">AI</span>
         </h1>
-        <p class="text-slate-500 text-lg font-light">הופכים כל סיכום למבחן חכם בלחיצת כפתור</p>
+        <p class="text-slate-500 text-base sm:text-lg font-light">הופכים כל סיכום למבחן חכם בלחיצת כפתור</p>
     </header>
 
-    <main id="upload-view" class="w-full max-w-3xl glass-panel rounded-2xl shadow-xl p-10 relative z-10">
-        <form id="upload-form" class="space-y-8">
+    <main id="upload-view" class="w-full max-w-3xl glass-panel rounded-2xl shadow-xl p-5 sm:p-10 relative z-10 mx-4 sm:mx-0">
+        <form id="upload-form" class="space-y-6 sm:space-y-8">
 
-            <div class="group p-6 border-2 border-dashed border-slate-200 rounded-xl hover:border-purple-400 hover:bg-purple-50/50 transition-all duration-300">
+            <div class="group p-4 sm:p-6 border-2 border-dashed border-slate-200 rounded-xl hover:border-purple-400 hover:bg-purple-50/50 transition-all duration-300">
                 <label class="block text-sm font-semibold text-slate-700 mb-3 cursor-pointer">1. העלאת קובץ (PDF, DOCX, PPTX, TXT)</label>
-                <input type="file" id="file-upload" accept=".pdf,.txt,.docx,.pptx" class="w-full text-slate-500 font-medium text-sm file:cursor-pointer file:border-0 file:py-2.5 file:px-5 file:mr-4 file:rounded-lg file:bg-white file:shadow-sm file:text-purple-700 hover:file:bg-purple-50 hover:file:text-purple-800 outline-none transition-all">
+                <input type="file" id="file-upload" accept=".pdf,.txt,.docx,.pptx" class="w-full text-slate-500 font-medium text-xs sm:text-sm file:cursor-pointer file:border-0 file:py-2 file:px-4 file:mr-4 file:rounded-lg file:bg-white file:shadow-sm file:text-purple-700 hover:file:bg-purple-50 outline-none transition-all">
             </div>
 
             <div class="relative flex items-center justify-center">
@@ -75,138 +81,141 @@
 
             <div>
                 <label class="block text-sm font-semibold text-slate-700 mb-3">2. הדבקת טקסט חופשי</label>
-                <textarea id="source-text" rows="4" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 focus:bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all resize-none shadow-inner" placeholder="הדבק כאן את החומר שתרצה להיבחן עליו..."></textarea>
+                <textarea id="source-text" rows="4" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 sm:p-4 text-sm sm:text-base focus:bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all resize-none shadow-inner" placeholder="הדבק כאן את החומר שתרצה להיבחן עליו..."></textarea>
             </div>
 
-            <div class="bg-gradient-to-br from-slate-50 to-slate-100 p-5 rounded-xl border border-slate-200">
+            <div class="bg-gradient-to-br from-slate-50 to-slate-100 p-4 sm:p-5 rounded-xl border border-slate-200">
                 <label class="block text-sm font-semibold text-slate-800 mb-2">הנחיות מיוחדות למודל <span class="text-purple-600 font-normal">(אופציונלי)</span></label>
-                <input type="text" id="custom-instructions" class="w-full bg-white border border-slate-200 rounded-lg p-3 focus:ring-2 focus:ring-purple-500 outline-none transition-all shadow-sm" placeholder="למשל: תייצר מבחן קשה במיוחד, תתמקד בפרק 3...">
+                <input type="text" id="custom-instructions" class="w-full bg-white border border-slate-200 rounded-lg p-2.5 sm:p-3 text-sm focus:ring-2 focus:ring-purple-500 outline-none transition-all shadow-sm" placeholder="למשל: תייצר מבחן קשה במיוחד...">
             </div>
 
-            <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold py-4 rounded-xl transition-all duration-300 shadow-[0_8px_20px_rgba(147,51,234,0.3)] hover:shadow-[0_12px_25px_rgba(147,51,234,0.4)] transform hover:-translate-y-1">
+            <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold py-3 sm:py-4 rounded-xl transition-all duration-300 shadow-[0_8px_20px_rgba(147,51,234,0.3)] hover:shadow-[0_12px_25px_rgba(147,51,234,0.4)] transform hover:-translate-y-1">
                 חולל מבחן עכשיו ✨
             </button>
         </form>
     </main>
 
-    <div id="loading-view" class="hidden text-center py-20 w-full max-w-3xl glass-panel rounded-2xl shadow-xl p-10 z-10">
-        <div class="relative inline-flex mb-8">
-            <div class="w-16 h-16 bg-purple-200 rounded-full animate-ping absolute opacity-75"></div>
-            <div class="w-16 h-16 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-full relative flex items-center justify-center shadow-lg">
-                <svg class="w-8 h-8 text-white animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+    <div id="loading-view" class="hidden text-center py-12 sm:py-20 w-full max-w-3xl glass-panel rounded-2xl shadow-xl p-6 sm:p-10 z-10 mx-4 sm:mx-0">
+        <div class="relative inline-flex mb-6 sm:mb-8">
+            <div class="w-12 h-12 sm:w-16 sm:h-16 bg-purple-200 rounded-full animate-ping absolute opacity-75"></div>
+            <div class="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-full relative flex items-center justify-center shadow-lg">
+                <svg class="w-6 h-6 sm:w-8 sm:h-8 text-white animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
             </div>
         </div>
-        <h2 class="text-2xl font-bold text-slate-800 mb-2">מנוע ה-AI בפעולה</h2>
-        <p id="loading-status" class="text-slate-500 text-lg">מעבד נתונים ובונה שאלות...</p>
+        <h2 class="text-xl sm:text-2xl font-bold text-slate-800 mb-2">מנוע ה-AI בפעולה</h2>
+        <p id="loading-status" class="text-sm sm:text-lg text-slate-500">מעבד נתונים ובונה שאלות...</p>
     </div>
 
-    <div id="exam-view" class="hidden w-full px-4 z-10 relative">
+    <div id="exam-view" class="hidden w-full px-2 sm:px-4 z-10 relative">
 
-        <div class="max-w-[21cm] mx-auto bg-slate-900 rounded-2xl p-4 flex flex-wrap gap-4 justify-between items-center shadow-2xl sticky top-4 z-50 border border-slate-700 backdrop-blur-md bg-opacity-95 mb-6">
+        <div class="max-w-[21cm] mx-auto bg-slate-900 rounded-xl sm:rounded-2xl p-3 sm:p-4 flex flex-wrap gap-3 sm:gap-4 justify-between items-center shadow-2xl sticky top-2 sm:top-4 z-50 border border-slate-700 backdrop-blur-md bg-opacity-95 mb-4 sm:mb-6">
 
-            <div id="toolbar-left-actions" class="flex items-center gap-4">
-                <button id="back-btn" class="group flex items-center gap-2 text-slate-400 hover:text-white transition-colors duration-200 font-medium text-sm bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-lg">
-                    <svg class="w-4 h-4 transform transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                    צור מבחן חדש
+            <div id="toolbar-left-actions" class="flex items-center gap-2">
+                <button id="back-btn" title="חזור למסך הראשי" class="group flex items-center gap-1.5 sm:gap-2 text-slate-400 hover:text-white transition-colors duration-200 font-medium text-xs sm:text-sm bg-slate-800 hover:bg-slate-700 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg">
+                    <svg class="w-3.5 h-3.5 transform transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    <span class="hidden sm:inline">צור מבחן חדש</span>
                 </button>
             </div>
 
-            <div class="flex flex-wrap justify-end gap-2 sm:gap-3">
+            <div class="flex flex-wrap justify-end gap-2">
 
-                <button id="view-results-btn" class="hidden bg-amber-500 hover:bg-amber-400 text-white text-sm font-bold py-2 px-3 sm:px-4 rounded-lg transition-all shadow-lg flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-                    <span class="hidden sm:inline">תוצאות הכיתה</span>
+                <button id="view-results-btn" title="לוח ציונים למורה" class="hidden bg-amber-500 hover:bg-amber-400 text-white text-xs sm:text-sm font-bold py-1.5 px-3 sm:py-2 sm:px-4 rounded-lg shadow-md flex items-center gap-1.5 sm:gap-2">
+                    <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                    <span class="hidden md:inline">תוצאות הכיתה</span>
                 </button>
 
-                <button id="share-class-btn" class="hidden bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold py-2 px-3 sm:px-4 rounded-lg transition-all shadow-lg flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                    <span class="hidden sm:inline">שתף לכיתה</span>
+                <button id="share-class-btn" title="שיתוף מבחן לתלמידים (עם שמירת ציונים)" class="hidden bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm font-bold py-1.5 px-3 sm:py-2 sm:px-4 rounded-lg shadow-md flex items-center gap-1.5 sm:gap-2">
+                    <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    <span class="hidden md:inline">שיתוף לכיתה</span>
                 </button>
 
-                <button id="share-btn" class="bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold py-2 px-3 sm:px-4 rounded-lg transition-all shadow-lg flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
-                    <span class="hidden sm:inline">העתק קישור לשיתוף</span>
+                <button id="share-btn" title="שיתוף לתרגול אישי (ללא ציונים)" class="bg-blue-600 hover:bg-blue-500 text-white text-xs sm:text-sm font-bold py-1.5 px-3 sm:py-2 sm:px-4 rounded-lg shadow-md flex items-center gap-1.5 sm:gap-2">
+                    <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                    <span class="hidden md:inline">שיתוף רגיל</span>
                 </button>
 
-                <div id="toolbar-separator" class="hidden sm:block w-px bg-slate-700 mx-1"></div>
+                <div id="toolbar-separator" class="hidden md:block w-px bg-slate-700 mx-1"></div>
 
-                <button id="submit-exam" class="bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white text-sm font-bold py-2 px-3 sm:px-5 rounded-lg transition-all shadow-lg">
-                    בדוק את התשובות שלי
+                <button id="submit-exam" title="בדיקה עצמית" class="bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white text-xs sm:text-sm font-bold py-1.5 px-3 sm:py-2 sm:px-5 rounded-lg shadow-md">
+                    בדיקה עצמית
                 </button>
 
-                <button id="submit-student-exam-btn" class="hidden bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white text-sm font-bold py-2 px-3 sm:px-5 rounded-lg transition-all shadow-lg flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
-                    הגש למורה
+                <button id="submit-student-exam-btn" title="שלח למורה" class="hidden bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 text-white text-xs sm:text-sm font-bold py-1.5 px-3 sm:py-2 sm:px-5 rounded-lg shadow-md flex items-center gap-1.5 sm:gap-2">
+                    <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                    הגש מבחן
                 </button>
 
-                <button id="download-blank-btn" class="bg-slate-700 hover:bg-slate-600 text-white text-sm font-bold py-2 px-3 sm:px-4 rounded-lg transition-all shadow-lg flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    <span class="hidden sm:inline">הורד מבחן להדפסה</span>
+                <button id="download-blank-btn" title="הורד מבחן" class="bg-slate-700 hover:bg-slate-600 text-white text-xs sm:text-sm font-bold py-1.5 px-2 sm:py-2 sm:px-4 rounded-lg shadow-md flex items-center gap-1.5 sm:gap-2">
+                    <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    <span class="hidden md:inline">הורדה</span>
                 </button>
-                <button id="download-solved-btn" class="bg-purple-600 hover:bg-purple-500 text-white text-sm font-bold py-2 px-3 sm:px-4 rounded-lg transition-all shadow-lg flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    <span class="hidden sm:inline">הורד קובץ פתרונות</span>
+                <button id="download-solved-btn" title="הורד פתרונות" class="bg-purple-600 hover:bg-purple-500 text-white text-xs sm:text-sm font-bold py-1.5 px-2 sm:py-2 sm:px-4 rounded-lg shadow-md flex items-center gap-1.5 sm:gap-2">
+                    <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span class="hidden md:inline">פתרונות</span>
                 </button>
             </div>
         </div>
 
-        <div id="printable-exam" class="a4-page p-12 sm:p-20 mb-20 relative overflow-hidden">
+        <div id="printable-exam" class="a4-page p-6 sm:p-12 md:p-20 mb-10 sm:mb-20 relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-purple-500 to-indigo-500"></div>
 
-            <div class="flex justify-between items-end mb-12 border-b-2 border-slate-100 pb-6">
+            <div class="flex flex-col sm:flex-row justify-between sm:items-end gap-4 mb-8 sm:mb-12 border-b-2 border-slate-100 pb-4 sm:pb-6">
                 <div>
-                    <h2 id="exam-title" class="text-4xl font-extrabold text-slate-900 tracking-tight">כותרת המבחן</h2>
-                    <p class="text-slate-400 mt-2 font-medium">הופק אוטומטית ע"י StudyBuddy AI</p>
+                    <h2 id="exam-title" class="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">כותרת המבחן</h2>
+                    <p class="text-slate-400 mt-1 sm:mt-2 text-sm sm:text-base font-medium">הופק ע"י StudyBuddy AI</p>
                 </div>
-                <div class="text-right">
-                    <span class="block text-slate-800 font-bold text-xl" id="exam-date"></span>
-                    <span class="text-slate-400 text-sm">תאריך הפקה</span>
+                <div class="sm:text-right">
+                    <span class="block text-slate-800 font-bold text-lg sm:text-xl" id="exam-date"></span>
+                    <span class="text-slate-400 text-xs sm:text-sm">תאריך הפקה</span>
                 </div>
             </div>
 
-            <div id="questions-container" class="space-y-10">
+            <div id="questions-container" class="space-y-8 sm:space-y-10">
             </div>
         </div>
     </div>
 
     <div id="student-modal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center transform scale-100 transition-all">
-            <div class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path></svg>
+        <div class="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-md w-full text-center transform scale-100 transition-all">
+            <div class="w-14 h-14 sm:w-16 sm:h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path></svg>
             </div>
-            <h3 class="text-2xl font-bold text-slate-800 mb-2">ברוכים הבאים למבחן</h3>
-            <p class="text-slate-500 mb-6">המורה שיתף איתך את המבחן הזה. הכנס את שמך המלא כדי להתחיל בהגשה.</p>
-            <input type="text" id="student-name-input" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-center text-lg font-medium focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none mb-4" placeholder="שם מלא (למשל: ישראל ישראלי)">
-            <button id="start-student-exam-btn" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg">
+            <h3 class="text-xl sm:text-2xl font-bold text-slate-800 mb-2">ברוכים הבאים למבחן</h3>
+            <p class="text-sm sm:text-base text-slate-500 mb-6">המורה שיתף איתך את המבחן הזה. הכנס את שמך המלא כדי להתחיל.</p>
+            <input type="text" id="student-name-input" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 sm:p-4 text-center text-base sm:text-lg font-medium focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none mb-4" placeholder="שם מלא (למשל: ישראל ישראלי)">
+            <button id="start-student-exam-btn" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-3 sm:py-4 rounded-xl transition-all shadow-lg">
                 התחל מבחן
             </button>
         </div>
     </div>
 
-    <div id="teacher-results-modal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[80vh] flex flex-col overflow-hidden">
-            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-                <h3 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+    <div id="teacher-results-modal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[100] flex items-center justify-center p-2 sm:p-4">
+        <div class="bg-white rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden">
+            <div class="p-4 sm:p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <h3 class="text-lg sm:text-2xl font-bold text-slate-800 flex items-center gap-2">
                     <span class="text-amber-500">📊</span> תוצאות הכיתה
                 </h3>
-                <button id="close-results-btn" class="text-slate-400 hover:text-slate-600 transition-colors">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                <button id="close-results-btn" class="text-slate-400 hover:text-slate-600 transition-colors p-2">
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
-            <div class="p-6 overflow-y-auto flex-1 bg-slate-50/50">
-                <table class="w-full text-right border-collapse bg-white rounded-xl shadow-sm overflow-hidden">
-                    <thead>
-                        <tr class="bg-slate-100 text-slate-600">
-                            <th class="p-4 font-semibold border-b border-slate-200">שם התלמיד</th>
-                            <th class="p-4 font-semibold text-center border-b border-slate-200">ציון</th>
-                            <th class="p-4 font-semibold text-left border-b border-slate-200">תאריך הגשה</th>
-                        </tr>
-                    </thead>
-                    <tbody id="results-table-body" class="divide-y divide-slate-100">
-                        </tbody>
-                </table>
-                <div id="no-results-msg" class="hidden text-center py-12 text-slate-500 font-medium">
-                    <div class="text-4xl mb-3">📭</div>
+
+            <div class="p-3 sm:p-6 overflow-y-auto flex-1 bg-slate-50/50">
+                <div class="overflow-x-auto rounded-lg sm:rounded-xl shadow-sm border border-slate-100">
+                    <table class="w-full text-right border-collapse bg-white min-w-[500px]">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-600 text-sm sm:text-base">
+                                <th class="p-3 sm:p-4 font-semibold border-b border-slate-200">שם התלמיד</th>
+                                <th class="p-3 sm:p-4 font-semibold text-center border-b border-slate-200">ציון</th>
+                                <th class="p-3 sm:p-4 font-semibold text-left border-b border-slate-200">תאריך הגשה</th>
+                            </tr>
+                        </thead>
+                        <tbody id="results-table-body" class="divide-y divide-slate-100 text-sm sm:text-base">
+                            </tbody>
+                    </table>
+                </div>
+                <div id="no-results-msg" class="hidden text-center py-10 sm:py-12 text-slate-500 font-medium text-sm sm:text-base">
+                    <div class="text-3xl sm:text-4xl mb-3">📭</div>
                     עדיין אין הגשות למבחן זה.
                 </div>
             </div>
